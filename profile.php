@@ -1,9 +1,31 @@
+<?php
+require_once 'session.php';
+require_once 'db.php';
+
+// 确保用户已登录
+if (!isLoggedIn()) {
+    redirectToLogin();
+}
+
+// 获取用户信息
+$user_id = $_SESSION['user_id'];
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$user_id]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    // 用户不存在，注销
+    session_destroy();
+    redirectToLogin();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>Profile - Música</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
@@ -11,46 +33,47 @@
         <h1>Música</h1>
         <nav>
             <ul class="center-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="index.html#product-list">Products</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="index.php#product-list">Products</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="contact.php">Contact</a></li>
             </ul>
             <ul class="right-menu" id="user-menu">
-                <!-- before login -->
-                <li class="login"><a href="login.html">Login</a></li>
-                <!-- after login -->
-                <li class="user-menu hidden">
-                    <a href="#" id="userName">Username</a>
+                <li class="user-menu">
+                    <a href="#" id="userName"><?php echo htmlspecialchars($_SESSION['username']); ?></a>
                     <ul class="dropdown">
-                        <li><a href="profile.html">Profile</a></li>
-                        <li><a href="cart.html">Cart</a></li>
-                        <li><a href="trackOrder.html">TrackOrder</a></li>
-                        <li><a href="#" id="logout">Logout</a></li>
+                        <li><a href="profile.php">Profile</a></li>
+                        <li><a href="cart.php">Cart</a></li>
+                        <li><a href="trackOrder.php">Track Order</a></li>
+                        <li><a href="logout.php" id="logout">Logout</a></li>
                     </ul>
                 </li>
             </ul>
         </nav>
     </header>
     <main>
-    <div class="profile-container">
-        <div class="avatar-container">
-            <img src="images/profile.png" alt="User Avatar" class="user-avatar">
-        </div>
-        <div class="profile-card">
-            <div class="profile-details">
-                <h1 id="username">Username</h1>
-                <h2>Email:</h2>
-                <p id="email">email@example.com</p>
-                <h2>Address:</h2>
-                <p id="address">Address: 123 Main St, City, Country</p>
+        <div class="profile-container">
+            <div class="avatar-container">
+                <img src="images/profile.png" alt="User Avatar" class="user-avatar">
             </div>
-    </div>
-    <script src="scripts/main.js"></script>
-    <script type="module" src="scripts/profile.js"></script>
+            <div class="profile-card">
+                <div class="profile-details">
+                    <h1 id="username"><?php echo htmlspecialchars($user['username']); ?></h1>
+                    <h2>Email:</h2>
+                    <p id="email"><?php echo htmlspecialchars($user['email']); ?></p>
+                    <h2>Phone:</h2>
+                    <p id="phone"><?php echo htmlspecialchars($user['phone']); ?></p>
+                    <h2>Address:</h2>
+                    <p id="address"><?php echo htmlspecialchars($user['address']); ?></p>
+                </div>
+                <div class="profile-actions">
+                    <a href="edit_profile.php" class="btn">Edit Profile</a>
+                </div>
+            </div>
+        </div>
     </main>
     <footer>
-        <p>&copy; 2024 Música. All rights reserved.</p>
+        <p>&copy; <?php echo date('Y'); ?> Música. All rights reserved.</p>
     </footer>
 </body>
 </html>

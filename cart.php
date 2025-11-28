@@ -1,78 +1,107 @@
+<?php
+require_once 'session.php';
+require_once 'db.php';
+
+if (!isLoggedIn()) {
+    redirectToLogin();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// 处理购物车操作
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $product_id = $_POST['product_id'] ?? '';
+    
+    if ($action === 'update_quantity') {
+        $quantity = $_POST['quantity'] ?? 1;
+        // 更新购物车数量逻辑
+    } elseif ($action === 'remove_item') {
+        // 移除商品逻辑
+    }
+}
+
+// 获取用户购物车商品
+// 这里需要根据你的数据库结构来实现
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
+    <title>Shopping Cart - Música</title>
     <link rel="stylesheet" href="styles/cart.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js" type="module"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js" type="module"></script>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
     <header>
         <h1>Música</h1>
         <nav>
             <ul class="center-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="index.html#product-list">Products</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="index.php#product-list">Products</a></li>
                 <li><a href="about.php">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="contact.php">Contact</a></li>
             </ul>
             <ul class="right-menu" id="user-menu">
-                <!-- before login -->
-                <li class="login"><a href="login.html">Login</a></li>
-                <!-- after login -->
-                <li class="user-menu hidden">
-                    <a href="#" id="userName">Username</a>
+                <li class="user-menu">
+                    <a href="#" id="userName"><?php echo htmlspecialchars($_SESSION['username']); ?></a>
                     <ul class="dropdown">
-                        <li><a href="profile.html">Profile</a></li>
-                        <li><a href="cart.html">Cart</a></li>
-                        <li><a href="trackOrder.html">TrackOrder</a></li>
-                        <li><a href="#" id="logout">Logout</a></li>
+                        <li><a href="profile.php">Profile</a></li>
+                        <li><a href="cart.php">Cart</a></li>
+                        <li><a href="trackOrder.php">Track Order</a></li>
+                        <li><a href="logout.php" id="logout">Logout</a></li>
                     </ul>
                 </li>
             </ul>
         </nav>
     </header>
     <main>
-        <h1>Cart</h1>
-        <!--这下面加了database后，可以不要了-->
-        <div id="cart-item-list"></div>
-        <!-- <div class="cart-item">
-            <img src="images/guitar.jpg" alt="Product Image" class="product-img" id="image">
-            <div class="product-details">
-                <p id="product_name">Product name</p>
-                <p id="price">RM 100.99</p>
+        <h1>Shopping Cart</h1>
+        
+        <?php
+        // 显示购物车商品
+        $cart_items = []; // 这里应该从数据库获取
+        
+        if (empty($cart_items)): ?>
+            <div class="empty-cart">
+                <p>Your cart is empty</p>
+                <a href="index.php" class="btn">Continue Shopping</a>
             </div>
-            <div class="quantity-controls">
-                <button id="subtract" >-</button>
-                <span id="amount">1</span>
-                <button id="add">+</button>
+        <?php else: ?>
+            <div id="cart-item-list">
+                <!-- 动态生成购物车商品 -->
+                <?php foreach ($cart_items as $item): ?>
+                <div class="cart-item">
+                    <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="Product Image" class="product-img">
+                    <div class="product-details">
+                        <p><?php echo htmlspecialchars($item['name']); ?></p>
+                        <p>RM <?php echo htmlspecialchars($item['price']); ?></p>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="subtract">-</button>
+                        <span class="quantity"><?php echo htmlspecialchars($item['quantity']); ?></span>
+                        <button class="add">+</button>
+                    </div>
+                    <button class="remove-btn">Remove</button>
+                </div>
+                <?php endforeach; ?>
             </div>
-        </div> -->
-        <!--重复
-        <div class="cart-item">
-            <input type="checkbox">
-            <img src="images/guitar.jpg" alt="Product Image" class="product-img">
-            <div class="product-details">
-                <p>Product name</p>
-                <p>RM 55.99</p>
+            
+            <div class="footer">
+                <div class="total">
+                    <p id="total-price">Total: RM 0.00</p>
+                </div>
+                <button class="checkout" id="checkout">Check Out</button>
             </div>
-            <div class="quantity-controls">
-                <button>-</button>
-                <span>1</span>
-                <button>+</button>
-            </div>
-        </div>
-        -->
-        <div class="footer">
-            <div class="total">
-                <p id="total-price">Loading ...</p>
-            </div>
-            <button class="checkout" id="checkout">Check Out</button>
-        </div>
+        <?php endif; ?>
     </main>
-    <script src="scripts/main.js"></script>
-    <script type="module" src="scripts/cart.js"></script>
+    
+    <script>
+        document.getElementById('checkout').addEventListener('click', function() {
+            window.location.href = 'check_out.php';
+        });
+    </script>
 </body>
 </html>

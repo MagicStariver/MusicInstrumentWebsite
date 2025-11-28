@@ -1,9 +1,20 @@
+<?php
+require_once 'session.php';
+
+$product_id = $_GET['id'] ?? '';
+
+if (empty($product_id)) {
+    header("Location: index.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details</title>
+    <title>Product Details - Música</title>
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" href="styles/product_details.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js" type="module"></script>
@@ -15,52 +26,120 @@
         <h1>Música</h1>
         <nav>
             <ul class="center-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="index.html#product-list">Products</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="index.php#product-list">Products</a></li>
+                <li><a href="about.php">About</a></li>
+                <li><a href="contact.php">Contact</a></li>
             </ul>
             <ul class="right-menu" id="user-menu">
-                <!-- before login -->
-                <li class="login"><a href="login.html">Login</a></li>
-                <!-- after login -->
-                <li class="user-menu hidden">
-                    <a href="#" id="userName">Username</a>
-                    <ul class="dropdown">
-                        <li><a href="profile.html">Profile</a></li>
-                        <li><a href="cart.html">Cart</a></li>
-                        <li><a href="trackOrder.html">Track Order</a></li>
-                        <li><a href="#" id="logout">Logout</a></li>
-                    </ul>
-                </li>
+                <?php if (!isLoggedIn()): ?>
+                    <li class="login"><a href="login.php">Login</a></li>
+                <?php else: ?>
+                    <li class="user-menu">
+                        <a href="#" id="userName"><?php echo htmlspecialchars($_SESSION['username']); ?></a>
+                        <ul class="dropdown">
+                            <li><a href="profile.php">Profile</a></li>
+                            <li><a href="cart.php">Cart</a></li>
+                            <li><a href="trackOrder.php">Track Order</a></li>
+                            <li><a href="logout.php" id="logout">Logout</a></li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
             </ul>
         </nav>
     </header>
     <main>
-
         <div class="container">
-            <!--id我帮你set好了，跟js里面的一样-->
             <img id="product-image" alt="Product Name">
             <h1 id="product-name"></h1>
             <h2>Description:</h2>
             <p id="product-description"></p>
             <p class="price" id="product-price"></p>
-            <button type="button" id="add-to-cart">Add to Cart</button>
-            <button type="button" id="buy-now">Buy Now</button>
-            <!--
-            <a href="#" class="btn">Add to Cart</a>
-            <a href="check_out.html" class="btn">Buy now</a>
-            -->
             
+            <?php if (isLoggedIn()): ?>
+                <button type="button" id="add-to-cart">Add to Cart</button>
+                <button type="button" id="buy-now">Buy Now</button>
+            <?php else: ?>
+                <p class="login-prompt">Please <a href="login.php">login</a> to purchase products.</p>
+                <button type="button" disabled>Add to Cart</button>
+                <button type="button" disabled>Buy Now</button>
+            <?php endif; ?>
         </div>
-
     </main>
     <footer>
-        <p>&copy; 2024 Música. All rights reserved.</p>
+        <p>&copy; <?php echo date('Y'); ?> Música. All rights reserved.</p>
     </footer>
-    <script src="scripts/main.js"></script>
-    <script type="module" src="scripts/productDetails.js"></script>
     
-</body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHW8gPuNSVstSV0ytE8oB5-_3PJKvxgMA",
+            authDomain: "muzica-93e9c.firebaseapp.com",
+            databaseURL: "https://muzica-93e9c-default-rtdb.firebaseio.com",
+            projectId: "muzica-93e9c",
+            storageBucket: "muzica-93e9c.appspot.com",
+            messagingSenderId: "559137569600",
+            appId: "1:559137569600:web:081ec42350a9f8099658a5",
+            measurementId: "G-G5MCSMD8H0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 获取URL中的产品ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (productId) {
+            loadProductDetails(productId);
+        }
+
+        async function loadProductDetails(productId) {
+            try {
+                const productRef = ref(db, 'product/' + productId);
+                const snapshot = await get(productRef);
+                
+                if (snapshot.exists()) {
+                    const product = snapshot.val();
+                    displayProductDetails(product);
+                } else {
+                    document.getElementById('product-name').textContent = 'Product not found';
+                }
+            } catch (error) {
+                console.error('Error loading product:', error);
+                document.getElementById('product-name').textContent = 'Error loading product';
+            }
+        }
+
+        function displayProductDetails(product) {
+            document.getElementById('product-image').src = product.image_source;
+            document.getElementById('product-image').alt = product.product_name;
+            document.getElementById('product-name').textContent = product.product_name;
+            document.getElementById('product-description').textContent = product.description || 'No description available';
+            document.getElementById('product-price').textContent = 'RM ' + product.price;
+
+            // 添加事件监听器
+            document.getElementById('add-to-cart').addEventListener('click', function() {
+                addToCart(product);
+            });
+
+            document.getElementById('buy-now').addEventListener('click', function() {
+                buyNow(product);
+            });
+        }
+
+        function addToCart(product) {
+            // 这里添加添加到购物车的逻辑
+            alert('Added to cart: ' + product.product_name);
+            // 可以调用PHP API来保存到数据库
+        }
+
+        function buyNow(product) {
+            // 直接购买逻辑
+            window.location.href = `check_out.php?product_id=${productId}&quantity=1`;
+        }
+    </script>
+</body>
 </html>
