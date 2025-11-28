@@ -1,0 +1,51 @@
+.container {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: auto;
+}
+
+.container h1 {
+    margin-top: 0;
+    font-size: 2.5em;
+    color:black;
+}
+
+.container p {
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+.container .price {
+    font-size: 1.8em;
+    color:black;
+    margin: 20px 0;
+}
+
+.container img {
+    width: 350px;  /* Set the desired width */
+    height: 350px;  /* Set the desired height */
+    object-fit: cover;  /* Ensures the image covers the dimensions without distortion */
+    border-radius: 10px;  /* Optional: Rounds the corners of the image */
+}
+
+.btn {
+    display: inline-block; /* Buttons are inline with each other */
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #1d222c; /* Button background color */
+    border: none;
+    border-radius: 5px;
+    text-decoration: none; /* Remove underline from links */
+    margin: 0 10px; /* Adjusts the space between buttons */
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #606469; /* Background color on hover */
+}

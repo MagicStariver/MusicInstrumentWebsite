@@ -1,0 +1,146 @@
+.container {
+    justify-content: center;
+    align-items: center;
+    margin: 100px;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+.product-info {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto; /* Add some margin between product and tracking steps */
+}
+
+.product-info img {
+    max-width: 100%;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    height: 150px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.order-tracking {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.tracking-steps {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0px;
+}
+
+.tracking-step {
+    width: 200px;
+    height: 60px;
+    background-color: transparent;
+    border: 2px dashed #130505;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/*
+.tracking-step::after {
+    content: '';
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    width: 2px;
+    height: 30px;
+    background-color: #030102;
+    transform: translateX(-50%);
+}*/
+
+.tracking-step:last-child::after {
+    display: none;
+}
+
+#loader1 {
+    width: 50px;
+    height: 30px;
+    display: grid;
+    overflow: hidden;
+}
+#loader1:before,
+#loader1:after {
+    content: "";
+    grid-area: 1/1;
+    background: #000;
+    clip-path: polygon(0 10px,calc(100% - 15px) 10px,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,calc(100% - 15px) calc(100% - 10px),0 calc(100% - 10px));
+    animation: l5 1s infinite;
+    transform: translate(calc(0% + var(--s,0%)));
+}
+#loader1:after {
+    --s:-100%;
+}
+@keyframes l5 {
+    80%,100%{transform: translate(calc(100% + var(--s,0%)))}
+}
+.stop-animation:before,
+.stop-animation:after {
+    animation: none !important;
+}
+
+#loader2 {
+    width: 50px;
+    height: 30px;
+    display: grid;
+    overflow: hidden;
+}
+#loader2:before,
+#loader2:after {
+    content: "";
+    grid-area: 1/1;
+    background: #000;
+    clip-path: polygon(0 10px,calc(100% - 15px) 10px,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,calc(100% - 15px) calc(100% - 10px),0 calc(100% - 10px));
+    animation: l5 1s infinite;
+    transform: translate(calc(0% + var(--s,0%)));
+}
+#loader2:after {
+    --s:-100%;
+}
+@keyframes l5 {
+    80%,100%{transform: translate(calc(100% + var(--s,0%)))}
+}
+.stop-animation:before,
+.stop-animation:after {
+    animation: none !important;
+}
+
+#loader3 {
+    width: 50px;
+    height: 30px;
+    display: grid;
+    overflow: hidden;
+}
+#loader3:before,
+#loader3:after {
+    content: "";
+    grid-area: 1/1;
+    background: #000;
+    clip-path: polygon(0 10px,calc(100% - 15px) 10px,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,calc(100% - 15px) calc(100% - 10px),0 calc(100% - 10px));
+    animation: l5 1s infinite;
+    transform: translate(calc(0% + var(--s,0%)));
+}
+#loader3:after {
+    --s:-100%;
+}
+@keyframes l5 {
+    80%,100%{transform: translate(calc(100% + var(--s,0%)))}
+}
+.stop-animation:before,
+.stop-animation:after {
+    animation: none !important;
+}
