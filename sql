@@ -1,4 +1,4 @@
--- users 表
+-- 1. 用户表
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- products 表 (如果要用MySQL而不是Firebase)
+-- 2. 产品表
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_name VARCHAR(255) NOT NULL,
@@ -23,15 +23,23 @@ CREATE TABLE products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- orders 表
+-- 3. 购物车表
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- 4. 订单表
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    product_id INT,
-    product_name VARCHAR(255),
-    product_image VARCHAR(500),
-    quantity INT DEFAULT 1,
-    total_price DECIMAL(10,2),
+    order_number VARCHAR(50) UNIQUE,
+    total_amount DECIMAL(10,2),
     status ENUM('payment', 'packing', 'delivery', 'arrived') DEFAULT 'payment',
     shipping_method VARCHAR(50),
     payment_method VARCHAR(50),
@@ -39,15 +47,14 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- cart_items 表
-CREATE TABLE cart_items (
+-- 5. 订单详情表
+CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    product_id INT,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
     product_name VARCHAR(255),
     product_price DECIMAL(10,2),
-    product_image VARCHAR(500),
     quantity INT DEFAULT 1,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );
