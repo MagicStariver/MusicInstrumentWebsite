@@ -1,6 +1,7 @@
 <?php
-require_once 'session.php';
+require 'include/session.php';
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
