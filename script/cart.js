@@ -9,66 +9,96 @@ $(document).ready(function() {
                 if (response.success) {
                     displayCart(response.data);
                 } else {
-                    $('#cart-item-list').html('<p>Your cart is empty</p>');
+                    showEmptyCart();
                 }
             },
             error: function() {
-                $('#cart-item-list').html('<p>Error loading cart</p>');
+                $('#cart-item-list').html('<p class="error">Error loading cart</p>');
             }
         });
     }
     
-    // 显示购物车
+    // 显示购物车内容
     function displayCart(items) {
         const container = $('#cart-item-list');
         container.empty();
         
         if (!items || items.length === 0) {
-            container.html('<p>Your cart is empty</p>');
-            $('#total-price').text('RM 0.00');
+            showEmptyCart();
             return;
         }
         
         let total = 0;
-        items.forEach(item => {
-            total += item.price * item.quantity;
-            container.append(`
+        
+        items.forEach(function(item) {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            
+            const itemHtml = `
                 <div class="cart-item" data-id="${item.id}">
                     <img src="${item.image_source}" alt="${item.product_name}" class="product-img">
                     <div class="product-details">
-                        <p>${item.product_name}</p>
-                        <p>RM ${item.price.toFixed(2)}</p>
+                        <h4>${item.product_name}</h4>
+                        <p>RM ${item.price.toFixed(2)} each</p>
+                        <p>Subtotal: RM ${itemTotal.toFixed(2)}</p>
                     </div>
                     <div class="quantity-controls">
-                        <button class="subtract">-</button>
+                        <button class="btn-subtract">-</button>
                         <span class="quantity">${item.quantity}</span>
-                        <button class="add">+</button>
+                        <button class="btn-add">+</button>
                     </div>
                 </div>
-            `);
+            `;
+            
+            container.append(itemHtml);
         });
         
+        // 更新总计
         $('#total-price').text('RM ' + total.toFixed(2));
         
-        // 绑定数量按钮事件
-        $('.subtract').on('click', function() {
-            updateQuantity($(this).closest('.cart-item').data('id'), -1);
+        // 绑定按钮事件
+        bindCartEvents();
+    }
+    
+    // 显示空购物车
+    function showEmptyCart() {
+        $('#cart-item-list').html('<p>Your cart is empty</p>');
+        $('#total-price').text('RM 0.00');
+    }
+    
+    // 绑定事件
+    function bindCartEvents() {
+        $('.btn-subtract').on('click', function() {
+            const itemId = $(this).closest('.cart-item').data('id');
+            updateCartItem(itemId, -1);
         });
         
-        $('.add').on('click', function() {
-            updateQuantity($(this).closest('.cart-item').data('id'), 1);
+        $('.btn-add').on('click', function() {
+            const itemId = $(this).closest('.cart-item').data('id');
+            updateCartItem(itemId, 1);
         });
     }
     
-    // 更新数量
-    function updateQuantity(itemId, change) {
+    // 更新购物车项目
+    function updateCartItem(itemId, change) {
         $.ajax({
             url: 'api/update_cart.php',
             method: 'POST',
-            data: { item_id: itemId, change: change },
+            contentType: 'application/json',
+            data: JSON.stringify({
+                item_id: itemId,
+                change: change
+            }),
             dataType: 'json',
-            success: function() {
-                loadCart(); // 重新加载
+            success: function(response) {
+                if (response.success) {
+                    loadCart(); // 重新加载
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Network error. Please try again.');
             }
         });
     }

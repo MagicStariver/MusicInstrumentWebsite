@@ -1,24 +1,29 @@
 $(document).ready(function() {
-    // 显示消息函数
-    function showMessage(message, type = 'success') {
-        const messageContainer = $('#message-container');
-        messageContainer.html(`
-            <div class="${type === 'success' ? 'success-message' : 'error-message'}">
-                ${message}
-            </div>
-        `);
-        
-        // 5秒后自动隐藏
-        setTimeout(() => {
-            messageContainer.empty();
-        }, 5000);
-    }
+    // 加载用户数据
+    $.ajax({
+        url: 'api/get_profile.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                // 填充表单数据
+                $('#email').val(response.data.email || '');
+                $('#fullName').val(response.data.full_name || '');
+                $('#birthday').val(response.data.birthday || '');
+                $('#address').val(response.data.address || '');
+            } else {
+                alert('Failed to load profile: ' + response.message);
+            }
+        },
+        error: function() {
+            alert('Error loading profile data');
+        }
+    });
     
-    // 表单提交处理
-    $('#profileForm').on('submit', function(event) {
+    // 表单提交
+    $('.profile-form').on('submit', function(event) {
         event.preventDefault();
         
-        // 收集表单数据
         const formData = {
             email: $('#email').val().trim(),
             fullName: $('#fullName').val().trim(),
@@ -27,8 +32,8 @@ $(document).ready(function() {
         };
         
         // 验证
-        if (!formData.email || !formData.address) {
-            showMessage('Email and address are required!', 'error');
+        if (!formData.email) {
+            alert('Email is required');
             return;
         }
         
@@ -37,7 +42,7 @@ $(document).ready(function() {
         const originalText = saveBtn.text();
         saveBtn.text('Saving...').prop('disabled', true);
         
-        // 发送更新请求到API
+        // 调用API
         $.ajax({
             url: 'api/update_profile.php',
             method: 'POST',
@@ -45,33 +50,26 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    showMessage('Profile updated successfully!', 'success');
-                    
-                    // 可选：更新页面上的用户名显示
-                    if (response.data && response.data.email) {
-                        $('#userName').text(response.data.username || $('#username').text());
-                    }
-                    
-                    // 3秒后重定向到个人资料页
-                    setTimeout(() => {
+                    alert('Profile updated successfully!');
+                    // 延迟重定向，让用户看到成功消息
+                    setTimeout(function() {
                         window.location.href = 'profile.php';
-                    }, 3000);
+                    }, 1500);
                 } else {
-                    showMessage('Error: ' + response.message, 'error');
+                    alert('Error: ' + response.message);
                     saveBtn.text(originalText).prop('disabled', false);
                 }
             },
-            error: function(xhr, status, error) {
-                showMessage('Failed to update profile. Please try again.', 'error');
-                console.error('AJAX Error:', error);
+            error: function() {
+                alert('Network error. Please try again.');
                 saveBtn.text(originalText).prop('disabled', false);
             }
         });
     });
     
-    // 取消按钮处理
-    $('#cancelBtn').on('click', function() {
-        if (confirm('Are you sure? Unsaved changes will be lost.')) {
+    // 取消按钮
+    $('.cancel-btn').on('click', function() {
+        if (confirm('Discard changes?')) {
             window.location.href = 'profile.php';
         }
     });
