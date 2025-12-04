@@ -12,6 +12,7 @@ require 'include/session.php';
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js" type="module"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js" type="module"></script>
 </head>
+
 <body>
     <header>
         <h1>Música</h1>
