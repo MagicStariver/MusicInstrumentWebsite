@@ -1,9 +1,7 @@
 <?php
 require_once 'db.php';
 
-/**
- * 根据ID获取用户信息
- */
+global $pdo;
 function getUserById($userId) {
     global $pdo;
     try {
