@@ -1,101 +1,83 @@
-const firebaseConfig = {
-    apiKey: "AIzaSyAHW8gPuNSVstSV0ytE8oB5-_3PJKvxgMA",
-    authDomain: "muzica-93e9c.firebaseapp.com",
-    projectId: "muzica-93e9c",
-    storageBucket: "muzica-93e9c.appspot.com",
-    messagingSenderId: "559137569600",
-    appId: "1:559137569600:web:081ec42350a9f8099658a5",
-    measurementId: "G-G5MCSMD8H0",
-    databaseURL: "https://muzica-93e9c-default-rtdb.firebaseio.com/"
-};
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-const username = getCookieValue('username')
-const cartview = ref (db, '/personal_data/'+ username +'/cart')
-onValue(cartview, (snapshot)=>{
-    const data = snapshot.val();
-    if(data){
-        const productkey = Object.keys(data).map(key =>({
-            id:key,
-            ...data[key]
-          }));
-        console.log(productkey);
-        const productId = productkey.map(item => item.productid); 
-        console.log(productId)
-        const productDetails = ref (db,'/product/');
-        onValue(productDetails, (snapshot)=>{
-            const productData = snapshot.val();
-            if (productData){
-                const allProducts = productData;
-                const productDetailsForCart = productId.map(productId => ({  
-                    id: productId,  
-                    ...allProducts[productId]  
-                }));
-                const productIds = productDetailsForCart.map(item => item.id); 
-                displayProducts(productDetailsForCart)
-                console.log(productDetailsForCart);
-                console.log(productIds)
-                //console.log(productData)
+$(document).ready(function() {
+    // 加载购物车
+    function loadCart() {
+        $.ajax({
+            url: 'api/get_cart.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    displayCart(response.data);
+                } else {
+                    $('#cart-item-list').html('<p>Your cart is empty</p>');
+                }
+            },
+            error: function() {
+                $('#cart-item-list').html('<p>Error loading cart</p>');
             }
-        })
+        });
     }
-})
-
-document.getElementById("checkout").addEventListener('click', function(event) {
-    alert("check out");
-    //const productId = this.getAttribute('data-product-id');
-    //location.href="check_out.html?id=" + cartId; 这里的cart id need database
-    location.href='check_out.php';
-}); 
-
-subtractButton = document.getElementById("subtract");
-addButton = document.getElementById("add");
-amount = document.getElementById("amount");
-check_outButtons = document.getElementById("checkout");
-total_price = document.getElementById("total-price");
-
-const originalPrice = parseFloat(total_price.innerHTML.replace("RM", ""));
-
-function getCookieValue(name) {  
-    const value = `; ${document.cookie}`;  
-    const parts = value.split(`; ${name}=`);  
-    if (parts.length === 2) return parts.pop().split(';').shift();  
-    return null; // Returns null if the cookie isn't found  
-}
-
-check_outButtons.addEventListener('click', function(event) {
-    alert("check out");
-    //const productId = this.getAttribute('data-product-id');
-    //location.href="check_out.html?id=" + cartId; 这里的cart id need database
-    location.href="check_out.html";
-});
-
-//database放这里， 我大概从index html抄来的
-function displayProducts(products) {
-    const listContainer = document.getElementById("cart-item-list");
-    listContainer.innerHTML = ''; // Clear previous content
-    let total_price = 0; // Use let instead of const
-
-    products.forEach(product => {
-        total_price += parseFloat(product.price); // Update total price
-        const Div = `
-            <div class="cart-item">
-                <img src="${product.image_source}" alt="${product.product_name}" class="product-img" id="image">
-                <div class="product-details">
-                    <p id="product_name">${product.product_name}</p>
-                    <p id="price">RM${product.price}</p>
-                </div>
-            </div>
-        `;
+    
+    // 显示购物车
+    function displayCart(items) {
+        const container = $('#cart-item-list');
+        container.empty();
         
-        listContainer.innerHTML += Div;
+        if (!items || items.length === 0) {
+            container.html('<p>Your cart is empty</p>');
+            $('#total-price').text('RM 0.00');
+            return;
+        }
+        
+        let total = 0;
+        items.forEach(item => {
+            total += item.price * item.quantity;
+            container.append(`
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image_source}" alt="${item.product_name}" class="product-img">
+                    <div class="product-details">
+                        <p>${item.product_name}</p>
+                        <p>RM ${item.price.toFixed(2)}</p>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="subtract">-</button>
+                        <span class="quantity">${item.quantity}</span>
+                        <button class="add">+</button>
+                    </div>
+                </div>
+            `);
+        });
+        
+        $('#total-price').text('RM ' + total.toFixed(2));
+        
+        // 绑定数量按钮事件
+        $('.subtract').on('click', function() {
+            updateQuantity($(this).closest('.cart-item').data('id'), -1);
+        });
+        
+        $('.add').on('click', function() {
+            updateQuantity($(this).closest('.cart-item').data('id'), 1);
+        });
+    }
+    
+    // 更新数量
+    function updateQuantity(itemId, change) {
+        $.ajax({
+            url: 'api/update_cart.php',
+            method: 'POST',
+            data: { item_id: itemId, change: change },
+            dataType: 'json',
+            success: function() {
+                loadCart(); // 重新加载
+            }
+        });
+    }
+    
+    // 结账按钮
+    $('#checkout').on('click', function() {
+        window.location.href = 'check_out.php';
     });
-
-    // Update the total price element
-    document.getElementById("total-price").innerHTML = "RM" + total_price.toFixed(2);
-}
+    
+    // 初始加载
+    loadCart();
+});
