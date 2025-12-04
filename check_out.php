@@ -1,6 +1,6 @@
 <?php
-require_once 'session.php';
-require_once 'db.php';
+require_once 'includes/session.php';
+require_once 'includes/db.php';
 
 if (!isLoggedIn()) {
     redirectToLogin();
@@ -8,22 +8,14 @@ if (!isLoggedIn()) {
 
 $user_id = $_SESSION['user_id'];
 
-// 获取用户信息
+// 获取用户信息（初始显示，JS会更新）
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
-// 处理结账
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $shipping_method = $_POST['shipping_method'] ?? '';
-    $payment_method = $_POST['payment_method'] ?? '';
-    
-    // 这里处理订单创建逻辑
-    // 创建订单，清空购物车等
-    
-    $_SESSION['order_success'] = true;
-    header("Location: trackOrder.php");
-    exit();
+if (!$user) {
+    session_destroy();
+    redirectToLogin();
 }
 ?>
 
@@ -33,8 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Out - Música</title>
-    <link rel="stylesheet" href="styles/check_out.css">
+    <link rel="stylesheet" href="styles/check_oout.css"> <!-- 注意文件名 -->
     <link rel="stylesheet" href="styles/style.css">
+    <!-- 添加jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -61,9 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
         <h1>Check Out</h1>
-        <form method="POST" class="checkout-info">
+        
+        <!-- 改为div容器，不是form -->
+        <div class="checkout-info">
             <div class="user-details">
                 <div class="user-detail">
+                    <!-- 初始显示PHP数据，JS会更新 -->
                     <p id="name"><strong>Name :</strong> <?php echo htmlspecialchars($user['username']); ?></p>
                     <p id="address"><strong>Address :</strong> <?php echo htmlspecialchars($user['address']); ?></p>
                     <p id="phone"><strong>Phone :</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
@@ -72,18 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="product-details">
                 <h3>Order Summary</h3>
-                <!-- 这里动态显示购物车商品 -->
-                <div class="product-item">
-                    <div class="product-image">
-                        <img src="images/guitar.jpg" alt="Product Image">
-                    </div>
-                    <div class="product-description">
-                        <p id="product_name">Product Name</p>
-                        <p id="price"><strong>RM 100.99</strong></p>
-                    </div>
-                    <div class="product-quantity">
-                        <p>Quantity: <span id="quantity">1</span></p>
-                    </div>
+                <!-- JS会动态填充购物车商品 -->
+                <!-- 可以保留一个加载状态 -->
+                <div id="cart-items-container">
+                    <p>Loading cart items...</p>
                 </div>
             </div>
 
@@ -110,25 +99,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="price-summary">
                 <div class="subtotal">
                     <p>Subtotal</p>
-                    <p id="subtotal">RM 100.99</p>
+                    <p id="subtotal">RM 0.00</p>
                 </div>
                 <div class="shipping-fee">
                     <p>Shipping Fee</p>
-                    <p id="shipping_fee">RM 4.90</p>
+                    <p id="shipping_fee">RM 0.00</p>
                 </div>
                 <div class="total">
                     <p><strong>Total</strong></p>
-                    <p id="total"><strong>RM 105.89</strong></p>
+                    <p id="total"><strong>RM 0.00</strong></p>
                 </div>
             </div>
 
             <div class="checkout-button">
-                <button type="submit" id="check_out">Place Order</button>
+                <!-- 改为button，不是submit -->
+                <button type="button" id="check_out">Place Order</button>
             </div>
-        </form>
+        </div>
     </main>
     <footer>
         <p>&copy; <?php echo date('Y'); ?> Música. All rights reserved.</p>
     </footer>
+    
+    <!-- 引入转换后的JS文件 -->
+    <script src="scripts/check_out.js"></script>
 </body>
 </html>
