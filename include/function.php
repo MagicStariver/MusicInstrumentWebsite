@@ -14,23 +14,21 @@ function getUserById($userId) {
     }
 }
 
-/**
- * 添加到购物车
- */
+
 function addToCart($userId, $productId, $quantity = 1) {
     global $pdo;
     try {
-        // 检查是否已存在
+        // check if item already in cart
         $stmt = $pdo->prepare("SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$userId, $productId]);
         $existing = $stmt->fetch();
         
         if ($existing) {
-            // 更新数量
+            // update quantity
             $stmt = $pdo->prepare("UPDATE cart_items SET quantity = quantity + ? WHERE id = ?");
             return $stmt->execute([$quantity, $existing['id']]);
         } else {
-            // 新增
+            // insert new item
             $stmt = $pdo->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)");
             return $stmt->execute([$userId, $productId, $quantity]);
         }
@@ -40,9 +38,7 @@ function addToCart($userId, $productId, $quantity = 1) {
     }
 }
 
-/**
- * 根据用户名获取用户
- */
+
 function getUserByUsername($username) {
     global $pdo;
     try {
@@ -55,9 +51,7 @@ function getUserByUsername($username) {
     }
 }
 
-/**
- * 创建新用户
- */
+
 function createUser($userData) {
     global $pdo;
     try {

@@ -10,9 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject = trim($_POST['subject']);
     $message_text = trim($_POST['message']);
     
-    // 这里可以添加联系表单处理逻辑
-    // 比如发送邮件、保存到数据库等
-    
     $message = "Thank you for your message! We'll get back to you soon.";
     $message_type = 'success';
 }

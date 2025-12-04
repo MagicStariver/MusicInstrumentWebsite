@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('#registerForm').on('submit', function(event) {
         event.preventDefault();
         
-        // 收集数据
+        //  collect form data
         const formData = {
             username: $('#username').val().trim(),
             email: $('#email').val().trim(),
@@ -12,7 +12,7 @@ $(document).ready(function() {
             confirmPassword: $('#confirmPassword').val()
         };
         
-        // 简单验证
+        //  simple validation
         if (formData.password !== formData.confirmPassword) {
             $('#registerMessage').text('Passwords do not match').css('color', 'red');
             return;
@@ -23,12 +23,12 @@ $(document).ready(function() {
             return;
         }
         
-        // 显示加载
+        //  show loading state
         const submitBtn = $(this).find('button[type="submit"]');
         const originalText = submitBtn.text();
         submitBtn.text('Registering...').prop('disabled', true);
         
-        // 调用API
+        //  call register API
         $.ajax({
             url: 'api/register.php',
             method: 'POST',
@@ -36,7 +36,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // 注册成功，跳转到登录页
+                    // Registration successful, redirected to the login page
                     $('#registerMessage').text('Registration successful! Redirecting...').css('color', 'green');
                     setTimeout(() => {
                         window.location.href = 'login.php';

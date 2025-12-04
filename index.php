@@ -70,7 +70,7 @@ require 'include/session.php';
     </footer>
 
     <script type="module">
-        // Firebase 配置和产品加载逻辑保持不变
+        // need change !!!
         const firebaseConfig = {
             apiKey: "AIzaSyAHW8gPuNSVstSV0ytE8oB5-_3PJKvxgMA",
             authDomain: "muzica-93e9c.firebaseapp.com",

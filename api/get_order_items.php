@@ -18,7 +18,7 @@ if ($orderId <= 0) {
 }
 
 try {
-    // 验证订单属于该用户
+    // Verify that the order belongs to this user
     $stmt = $pdo->prepare("SELECT id FROM orders WHERE id = ? AND user_id = ?");
     $stmt->execute([$orderId, $userId]);
     
@@ -27,7 +27,7 @@ try {
         exit();
     }
     
-    // 获取订单商品
+    // Get order items
     $stmt = $pdo->prepare("
         SELECT oi.*, p.image_source
         FROM order_items oi

@@ -1,13 +1,13 @@
 $(document).ready(function() {
-    let cartItems = []; // 存储购物车商品
-    let userInfo = {};  // 存储用户信息
+    let cartItems = []; // store cart items
+    let userInfo = {};  // store user info
     
-    // 1. 加载用户信息和购物车
+    // 1.  upload checkout data
     loadCheckoutData();
     
-    // 2. 加载结账数据
+    // 2. upload checkout data function
     function loadCheckoutData() {
-        // 同时加载用户信息和购物车
+        // simultaneously get user profile and cart items
         $.when(
             $.ajax({ url: 'api/get_profile.php', method: 'GET', dataType: 'json' }),
             $.ajax({ url: 'api/get_cart.php', method: 'GET', dataType: 'json' })
@@ -19,7 +19,7 @@ $(document).ready(function() {
                 userInfo = profileData.data;
                 cartItems = cartData.data || [];
                 
-                // 生成结账页面
+                // format checkout page
                 generateCheckoutPage();
             } else {
                 alert('Failed to load checkout data');
@@ -31,19 +31,19 @@ $(document).ready(function() {
         });
     }
     
-    // 3. 生成结账页面
+    // 3. generate checkout page
     function generateCheckoutPage() {
-        // 3.1 显示用户信息
+        // 3.1 show user info
         displayUserInfo();
         
-        // 3.2 显示购物车商品
+        // 3.2 show cart items
         displayCartItems();
         
-        // 3.3 计算并显示价格
+        // 3.3 set initial totals
         calculateTotals();
     }
     
-    // 显示用户信息
+    // 4. display user info
     function displayUserInfo() {
         if (userInfo) {
             $('#name').html(`<strong>Name:</strong> ${userInfo.username || 'User'}`);
@@ -52,7 +52,7 @@ $(document).ready(function() {
         }
     }
     
-    // 显示购物车商品
+    // display cart items
     function displayCartItems() {
         const container = $('#cart-items-container'); 
         container.empty();
@@ -81,7 +81,7 @@ $(document).ready(function() {
         });
     }
     
-    // 计算价格
+    // calculate totals
     function calculateTotals() {
         if (cartItems.length === 0) {
             $('#subtotal').text('RM 0.00');
@@ -90,26 +90,26 @@ $(document).ready(function() {
             return;
         }
         
-        // 计算小计
+        // calculate subtotal
         let subtotal = 0;
         cartItems.forEach(function(item) {
             subtotal += item.price * item.quantity;
         });
         
-        // 计算运费（根据选择的配送方式）
+        // calculate shipping fee
         const shippingMethod = $('#shipping-method').val();
         const shippingFee = calculateShippingFee(shippingMethod);
         
-        // 计算总计
+        // calculate total
         const total = subtotal + shippingFee;
         
-        // 更新显示
+        // update display
         $('#subtotal').text('RM ' + subtotal.toFixed(2));
         $('#shipping_fee').text('RM ' + shippingFee.toFixed(2));
         $('#total').text('RM ' + total.toFixed(2));
     }
     
-    // 计算运费
+    // calculate shipping fee based on method
     function calculateShippingFee(method) {
         const rates = {
             'j&t': 4.90,
@@ -120,18 +120,18 @@ $(document).ready(function() {
         return rates[method] || 4.90;
     }
     
-    // 4. 配送方式变更事件
+    // 4. delivery method change event
     $('#shipping-method').on('change', function() {
         calculateTotals();
     });
     
-    // 5. 支付方式变更事件
+    // 5. payment method change event
     $('#payment-method').on('change', function() {
         // 可以在这里添加支付方式特定的逻辑
         console.log('Payment method changed to:', $(this).val());
     });
     
-    // 6. 结账按钮点击事件
+    // 6. button checkout event
     $('#check_out').on('click', function(event) {
         event.preventDefault();
         
@@ -143,18 +143,18 @@ $(document).ready(function() {
         const shippingMethod = $('#shipping-method').val();
         const paymentMethod = $('#payment-method').val();
         
-        // 验证选择
+        // validation 
         if (!shippingMethod || !paymentMethod) {
             alert('Please select shipping and payment methods');
             return;
         }
         
-        // 显示加载状态
+        // show loading state
         const checkoutBtn = $(this);
         const originalText = checkoutBtn.text();
         checkoutBtn.text('Processing...').prop('disabled', true);
         
-        // 准备结账数据
+        // repare checkout data
         const checkoutData = {
             shipping_method: shippingMethod,
             payment_method: paymentMethod,
@@ -166,7 +166,7 @@ $(document).ready(function() {
             }))
         };
         
-        // 提交结账
+        // call checkout API
         $.ajax({
             url: 'api/checkout.php',
             method: 'POST',
@@ -175,13 +175,13 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // 结账成功
+                    // successful checkout
                     alert(`Order placed successfully! Order #${response.order_number}`);
                     
-                    // 跳转到订单跟踪页面
+                    // redirect to order tracking page
                     window.location.href = 'trackOrder.php?order_id=' + response.order_id;
                 } else {
-                    // 结账失败
+                    // failed checkout
                     alert('Checkout failed: ' + response.message);
                     checkoutBtn.text(originalText).prop('disabled', false);
                 }
@@ -194,6 +194,6 @@ $(document).ready(function() {
         });
     });
     
-    // 7. 页面加载时计算初始价格
+    // 7. recalculate totals after slight delay to ensure DOM is ready
     setTimeout(calculateTotals, 100);
 });

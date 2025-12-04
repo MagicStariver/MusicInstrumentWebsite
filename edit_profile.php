@@ -8,7 +8,7 @@ if (!isLoggedIn()) {
 
 $user_id = $_SESSION['user_id'];
 
-// 获取当前用户信息（只用于页面显示）
+// get user info
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
@@ -27,7 +27,6 @@ if (!$user) {
     <title>Edit Profile - Música</title>
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" href="styles/EditProfile.css">
-    <!-- 添加jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -56,7 +55,6 @@ if (!$user) {
 
     <main>
         <section class="user-profile">
-            <!-- 消息容器（由JS动态填充） -->
             <div id="message-container"></div>
             
             <div class="avatar-container">
@@ -64,7 +62,6 @@ if (!$user) {
             </div>
             <h3 id="username"><?php echo htmlspecialchars($user['username']); ?></h3>
             
-            <!-- 改为普通表单，无action，由JS处理 -->
             <form id="profileForm" class="profile-form">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
@@ -90,7 +87,6 @@ if (!$user) {
         <p>&copy; <?php echo date('Y'); ?> Música. All rights reserved.</p>
     </footer>
     
-    <!-- 引入修改后的JS文件 -->
     <script src="scripts/edit_profile.js"></script>
 </body>
 </html>

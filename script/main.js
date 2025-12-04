@@ -18,13 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return null; // Returns null if the cookie isn't found  
     }
 
-    // 用户菜单点击事件
+    // user menu toggle
     userNameElement.addEventListener('click', function(event) {
         event.preventDefault();
         userMenu.classList.toggle('show');
     });
 
-    // 更新登录状态
+    //  update login status
     
     function updateLoginStatus() {
         //const params = new URLSearchParams(window.location.search);  
@@ -56,18 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     
-    // 处理注销事件
+    //  logout button event
     if (logoutButton) {
         logoutButton.addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('username'); // 清除用户名
-                updateLoginStatus(); // 更新登录状态
-                window.location.href = 'login.php'; // 重定向到登录页面
+                localStorage.removeItem('username'); // clear local storage
+                updateLoginStatus(); // update UI
+                window.location.href = 'login.php'; //  redirect to login page
             }
         });
     }
     
-    // 设置链接点击事件
+    //  settings link event
     if (settingsLink) {
         settingsLink.addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
@@ -77,14 +77,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 购买按钮事件处理
+    //  buy button events
         buyButtons.forEach(button => {
             button.addEventListener('click', function() {
                 alert('Thank you for your purchase!');
             });
         });
 
-    // 类别筛选功能
+    //  category filter
     categoryButtons.forEach(button => {
         button.addEventListener('click', function() {
             const category = button.getAttribute('data-category');
@@ -94,16 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 平滑滚动到 Products 部分
+    //  smooth scroll to products section
     if (productsLink) {
         productsLink.addEventListener('click', function(event) {
-            event.preventDefault(); // 阻止默认跳转行为
+            event.preventDefault(); //  prevent default anchor behavior
             var productsSection = document.getElementById('product-list');
             productsSection.scrollIntoView({ behavior: 'smooth' });
         });
     }
 
-    // Back-to-top 按钮功能
+    //  back to top button
     if (mybutton) {
         window.onscroll = function() { 
             mybutton.style.display = (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) ? 'block' : 'none';

@@ -2,7 +2,7 @@
 $host = 'localhost';
 $dbname = 'musica';
 $username = 'root';
-$password = '';  // XAMPP 默认空密码
+$password = '';  // XAMPP password is usually empty
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);

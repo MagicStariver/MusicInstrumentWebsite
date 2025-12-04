@@ -2,19 +2,19 @@
 require_once 'session.php';
 require_once 'db.php';
 
-// 确保用户已登录
+// make sure user is logged in
 if (!isLoggedIn()) {
     redirectToLogin();
 }
 
-// 获取用户信息
+// get user info from database
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
 if (!$user) {
-    // 用户不存在，注销
+    // user not found, log out and redirect to login
     session_destroy();
     redirectToLogin();
 }

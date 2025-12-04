@@ -12,7 +12,7 @@ if (!isLoggedIn()) {
 $userId = $_SESSION['user_id'];
 
 try {
-    // 获取用户购物车
+    // Get user's shopping cart items
     $stmt = $pdo->prepare("
         SELECT ci.id, ci.product_id, ci.quantity, 
                p.product_name, p.price, p.image_source

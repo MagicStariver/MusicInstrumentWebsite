@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    // 加载购物车
+    // upload cart items
     function loadCart() {
         $.ajax({
             url: 'api/get_cart.php',
@@ -18,7 +18,7 @@ $(document).ready(function() {
         });
     }
     
-    // 显示购物车内容
+    // show cart items
     function displayCart(items) {
         const container = $('#cart-item-list');
         container.empty();
@@ -53,20 +53,20 @@ $(document).ready(function() {
             container.append(itemHtml);
         });
         
-        // 更新总计
+        // update total price
         $('#total-price').text('RM ' + total.toFixed(2));
         
-        // 绑定按钮事件
+        // bidn button events
         bindCartEvents();
     }
     
-    // 显示空购物车
+    // show empty cart
     function showEmptyCart() {
         $('#cart-item-list').html('<p>Your cart is empty</p>');
         $('#total-price').text('RM 0.00');
     }
     
-    // 绑定事件
+    // Binding events
     function bindCartEvents() {
         $('.btn-subtract').on('click', function() {
             const itemId = $(this).closest('.cart-item').data('id');
@@ -79,7 +79,7 @@ $(document).ready(function() {
         });
     }
     
-    // 更新购物车项目
+    // update cart item quantity
     function updateCartItem(itemId, change) {
         $.ajax({
             url: 'api/update_cart.php',
@@ -92,7 +92,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    loadCart(); // 重新加载
+                    loadCart(); // reload cart
                 } else {
                     alert('Error: ' + response.message);
                 }
@@ -103,11 +103,11 @@ $(document).ready(function() {
         });
     }
     
-    // 结账按钮
+    //  checkout button
     $('#checkout').on('click', function() {
         window.location.href = 'check_out.php';
     });
     
-    // 初始加载
+    //  initial load
     loadCart();
 });

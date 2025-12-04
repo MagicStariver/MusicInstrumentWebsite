@@ -23,13 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $user_id = $_SESSION['user_id'];
 
-// 获取并清理数据
+// get and sanitize input
 $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 $fullName = filter_input(INPUT_POST, 'fullName', FILTER_SANITIZE_STRING);
 $birthday = $_POST['birthday'] ?? null;
 $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING);
 
-// 验证
+// validation
 if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     echo json_encode(['success' => false, 'message' => 'Invalid email']);
     exit();
@@ -41,7 +41,7 @@ if (!$address) {
 }
 
 try {
-    // 检查邮箱是否被其他用户使用
+    // check if email is already used by another user
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
     $stmt->execute([$email, $user_id]);
     if ($stmt->fetch()) {
@@ -49,14 +49,14 @@ try {
         exit();
     }
     
-    // 更新用户信息
+    // update user profile
     $stmt = $pdo->prepare("UPDATE users SET email = ?, full_name = ?, birthday = ?, address = ? WHERE id = ?");
     $stmt->execute([$email, $fullName, $birthday, $address, $user_id]);
     
-    // 更新会话中的邮箱
+    // update session email
     $_SESSION['email'] = $email;
     
-    // 获取更新后的用户信息
+    // get updated user info
     $stmt = $pdo->prepare("SELECT username, email FROM users WHERE id = ?");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch();

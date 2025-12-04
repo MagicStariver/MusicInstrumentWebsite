@@ -2,7 +2,7 @@
 require_once 'db.php';
 require_once 'session.php';
 
-// 如果已经登录，重定向到首页
+// if already logged in, redirect to homepage
 if (isLoggedIn()) {
     header("Location: index.php");
     exit();

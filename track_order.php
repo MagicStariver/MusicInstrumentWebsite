@@ -8,12 +8,12 @@ if (!isLoggedIn()) {
 
 $user_id = $_SESSION['user_id'];
 
-// 获取用户订单
+// get latest order for the user
 $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
 $stmt->execute([$user_id]);
 $order = $stmt->fetch();
 
-// 获取订单状态
+// get order status
 $order_status = $order ? $order['status'] : 'payment';
 ?>
 

@@ -35,7 +35,7 @@
     </header>
     <main>
 
-    <!-- 内容 -->
+    <!-- info -->
 
     </main>
     <footer>

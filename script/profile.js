@@ -1,12 +1,12 @@
 $(document).ready(function() {
-    // 获取用户资料
+    // get user profile info
     $.ajax({
         url: 'api/get_profile.php',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
             if (response.success) {
-                // 更新页面显示
+                // update profile fields
                 $('#username').text(response.data.username || 'User');
                 $('#email').text(response.data.email || 'No email available');
                 $('#phone').text(response.data.phone || 'No phone available');

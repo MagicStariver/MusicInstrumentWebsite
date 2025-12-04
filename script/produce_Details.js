@@ -9,22 +9,19 @@ $(document).ready(function() {
         return;
     }
     
-    // 1. 加载产品详情（需要创建 api/get_product.php）
-    // 暂时方案：可以在PHP页面直接输出产品数据
-    
-    // 2. 添加到购物车按钮
+    // Add to cart button
     $('#add-to-cart').on('click', function() {
-        // 检查是否登录
+        //  check login status first
         $.ajax({
-            url: 'api/get_profile.php', // 用来检查登录状态
+            url: 'api/get_profile.php', // check if logged in
             method: 'GET',
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // 已登录，添加到购物车
+                    // successfully logged in, add to cart
                     addToCart(productId);
                 } else {
-                    // 未登录，跳转到登录页
+                    // not logged in
                     alert('Please login first');
                     window.location.href = 'login.php';
                 }
@@ -36,16 +33,16 @@ $(document).ready(function() {
         });
     });
     
-    // 3. 直接购买按钮
+    //  Buy now button
     $('#buy-now').on('click', function() {
-        // 同样检查登录
+        //  check login status first
         $.ajax({
             url: 'api/get_profile.php',
             method: 'GET',
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // 先添加到购物车，然后跳转到结账
+                    //  logged in, add to cart and go to checkout
                     addToCartAndCheckout(productId);
                 } else {
                     alert('Please login first');
@@ -55,7 +52,7 @@ $(document).ready(function() {
         });
     });
     
-    // 添加到购物车函数
+    //  add to cart function
     function addToCart(productId) {
         $.ajax({
             url: 'api/add_to_cart.php',
@@ -69,7 +66,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     alert('Added to cart!');
-                    // 可选：跳转到购物车页
+                    //  redirect to cart page
                     // window.location.href = 'cart.php';
                 } else {
                     alert('Error: ' + response.message);
@@ -81,7 +78,7 @@ $(document).ready(function() {
         });
     }
     
-    // 添加到购物车并结账
+    //  add to cart and go to checkout
     function addToCartAndCheckout(productId) {
         $.ajax({
             url: 'api/add_to_cart.php',
@@ -94,7 +91,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // 跳转到结账页
+                    //  redirect to checkout page
                     window.location.href = 'check_out.php';
                 } else {
                     alert('Error: ' + response.message);

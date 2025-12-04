@@ -1,8 +1,8 @@
 $(document).ready(function() {
-    // 1. 加载订单数据
+    // 1.  unload orders on page load
     loadOrders();
     
-    // 2. 加载订单函数
+    // 2.  unload orders function
     function loadOrders() {
         $.ajax({
             url: 'api/get_orders.php',
@@ -10,11 +10,11 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success && response.data && response.data.length > 0) {
-                    // 显示最新订单
-                    const latestOrder = response.data[0]; // 假设显示最新的
+                    // show latest order
+                    const latestOrder = response.data[0]; // if multiple orders, show the latest
                     displayOrder(latestOrder);
                 } else {
-                    // 没有订单
+                    // no orders found
                     showNoOrders();
                 }
             },
@@ -24,9 +24,9 @@ $(document).ready(function() {
         });
     }
     
-    // 3. 显示订单
+    // 3.  display order details
     function displayOrder(order) {
-        // 3.1 显示订单基本信息
+        // 3.1 show order info
         const orderInfo = `
             <div class="order-info">
                 <p><strong>Order #:</strong> ${order.order_number}</p>
@@ -36,8 +36,7 @@ $(document).ready(function() {
             </div>
         `;
         
-        // 3.2 获取订单商品（需要新API或修改现有API）
-        // 暂时显示通用信息
+        // 3.2  show product info
         const productInfo = `
             <div class="product-info">
                 <img src="images/guitar.jpg" alt="Product Image">
@@ -48,11 +47,11 @@ $(document).ready(function() {
         $('#product-list').html(productInfo);
         $('.order-tracking').prepend(orderInfo);
         
-        // 3.3 更新跟踪状态
+        // 3.3 update tracking status
         updateTrackingStatus(order.status);
     }
     
-    // 4. 显示无订单
+    // 4. show no orders message
     function showNoOrders() {
         const noOrdersHtml = `
             <div class="no-orders">
@@ -64,7 +63,7 @@ $(document).ready(function() {
         $('#product-list').html(noOrdersHtml);
     }
     
-    // 5. 更新跟踪状态（根据你原来的tracking函数）
+    // 5. update tracking status UI
     function updateTrackingStatus(status) {
         const payment = $('#payment');
         const packing = $('#packing');
@@ -75,7 +74,7 @@ $(document).ready(function() {
         const loader2 = $('#loader2');
         const loader3 = $('#loader3');
         
-        // 重置所有
+        // reset all to default
         payment.css('border', '2px dashed #130505');
         packing.css('border', '2px dashed #130505');
         delivery.css('border', '2px dashed #130505');
@@ -85,7 +84,7 @@ $(document).ready(function() {
         loader2.removeClass('stop-animation');
         loader3.removeClass('stop-animation');
         
-        // 根据状态更新
+        //  highlight based on status
         switch(status) {
             case 'arrived':
                 payment.css('border', '2px solid #130505');
@@ -116,12 +115,12 @@ $(document).ready(function() {
                 break;
                 
             default:
-                // 保持虚线
+                // status unknown, do nothing
                 break;
         }
     }
     
-    // 6. 格式化日期
+    // 6.   date formatting helper
     function formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -131,10 +130,10 @@ $(document).ready(function() {
         });
     }
     
-    // 7. 可选：自动刷新订单状态
-    // 如果订单还在处理中，可以定时刷新
+    // 7.  can choose to auto-refresh the order status
+    //  here we set interval to refresh every 1 minute
     if (window.location.search.includes('order_id')) {
-        // 如果有特定的订单ID，可以更频繁地检查
-        setInterval(loadOrders, 30000); // 每30秒刷新
+        // If there is a specific order ID, it can be checked more frequently.
+        setInterval(loadOrders, 30000); //  30 seconds
     }
 });

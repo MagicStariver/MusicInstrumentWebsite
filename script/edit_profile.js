@@ -1,12 +1,12 @@
 $(document).ready(function() {
-    // 加载用户数据
+    // use profile API to get current user data
     $.ajax({
         url: 'api/get_profile.php',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
             if (response.success) {
-                // 填充表单数据
+                // fill form fields
                 $('#email').val(response.data.email || '');
                 $('#fullName').val(response.data.full_name || '');
                 $('#birthday').val(response.data.birthday || '');
@@ -20,7 +20,7 @@ $(document).ready(function() {
         }
     });
     
-    // 表单提交
+    // handle form submission
     $('.profile-form').on('submit', function(event) {
         event.preventDefault();
         
@@ -31,18 +31,18 @@ $(document).ready(function() {
             address: $('#address').val().trim()
         };
         
-        // 验证
+        //  simple validation
         if (!formData.email) {
             alert('Email is required');
             return;
         }
         
-        // 显示加载状态
+        //  show loading state
         const saveBtn = $('.save-btn');
         const originalText = saveBtn.text();
         saveBtn.text('Saving...').prop('disabled', true);
         
-        // 调用API
+        //  call update profile API
         $.ajax({
             url: 'api/update_profile.php',
             method: 'POST',
@@ -51,7 +51,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     alert('Profile updated successfully!');
-                    // 延迟重定向，让用户看到成功消息
+                    //  redirect back to profile page
                     setTimeout(function() {
                         window.location.href = 'profile.php';
                     }, 1500);
@@ -67,7 +67,7 @@ $(document).ready(function() {
         });
     });
     
-    // 取消按钮
+    //  handle cancel button
     $('.cancel-btn').on('click', function() {
         if (confirm('Discard changes?')) {
             window.location.href = 'profile.php';

@@ -61,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Shopping Cart</h1>
         
         <?php
-        // 显示购物车商品
-        $cart_items = []; // 这里应该从数据库获取
+        // show cart items
+        $cart_items = []; // get cart items from database
         
         if (empty($cart_items)): ?>
             <div class="empty-cart">
@@ -71,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php else: ?>
             <div id="cart-item-list">
-                <!-- 动态生成购物车商品 -->
                 <?php foreach ($cart_items as $item): ?>
                 <div class="cart-item">
                     <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="Product Image" class="product-img">

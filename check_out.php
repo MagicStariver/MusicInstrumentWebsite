@@ -25,9 +25,8 @@ if (!$user) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Out - Música</title>
-    <link rel="stylesheet" href="styles/check_oout.css"> <!-- 注意文件名 -->
+    <link rel="stylesheet" href="styles/check_out.css"> 
     <link rel="stylesheet" href="styles/style.css">
-    <!-- 添加jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
@@ -56,11 +55,9 @@ if (!$user) {
     <main>
         <h1>Check Out</h1>
         
-        <!-- 改为div容器，不是form -->
         <div class="checkout-info">
             <div class="user-details">
                 <div class="user-detail">
-                    <!-- 初始显示PHP数据，JS会更新 -->
                     <p id="name"><strong>Name :</strong> <?php echo htmlspecialchars($user['username']); ?></p>
                     <p id="address"><strong>Address :</strong> <?php echo htmlspecialchars($user['address']); ?></p>
                     <p id="phone"><strong>Phone :</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
@@ -69,8 +66,6 @@ if (!$user) {
 
             <div class="product-details">
                 <h3>Order Summary</h3>
-                <!-- JS会动态填充购物车商品 -->
-                <!-- 可以保留一个加载状态 -->
                 <div id="cart-items-container">
                     <p>Loading cart items...</p>
                 </div>
@@ -112,7 +107,6 @@ if (!$user) {
             </div>
 
             <div class="checkout-button">
-                <!-- 改为button，不是submit -->
                 <button type="button" id="check_out">Place Order</button>
             </div>
         </div>
@@ -121,7 +115,6 @@ if (!$user) {
         <p>&copy; <?php echo date('Y'); ?> Música. All rights reserved.</p>
     </footer>
     
-    <!-- 引入转换后的JS文件 -->
     <script src="scripts/check_out.js"></script>
 </body>
 </html>

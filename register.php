@@ -2,7 +2,7 @@
 require_once 'db.php';
 require_once 'session.php';
 
-// 如果已经登录，重定向到首页
+// if already logged in, redirect to homepage
 if (isLoggedIn()) {
     header("Location: index.php");
     exit();
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirmPassword'];
     
-    // 验证输入
+    // validation
     if ($password !== $confirmPassword) {
         $message = "Passwords do not match";
         $message_type = 'error';
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message_type = 'error';
     } else {
         try {
-            // 检查用户名是否已存在
+            // check if username or email already exists
             $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
             $stmt->execute([$username, $email]);
             
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Username or email already exists";
                 $message_type = 'error';
             } else {
-                // 创建新用户
+                // create new user
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO users (username, email, phone, address, password) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$username, $email, $phone, $address, $hashedPassword]);

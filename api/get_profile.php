@@ -14,7 +14,7 @@ if (!isLoggedIn()) {
 try {
     $userId = $_SESSION['user_id'];
     
-    // 从数据库获取用户信息
+    // Retrieve user information from the database
     $stmt = $pdo->prepare("SELECT username, email, phone, address, full_name, birthday FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();

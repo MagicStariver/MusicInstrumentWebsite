@@ -88,7 +88,7 @@ if (empty($product_id)) {
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 获取URL中的产品ID
+        // get product ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
 
@@ -120,7 +120,7 @@ if (empty($product_id)) {
             document.getElementById('product-description').textContent = product.description || 'No description available';
             document.getElementById('product-price').textContent = 'RM ' + product.price;
 
-            // 添加事件监听器
+            // add event listeners for buttons
             document.getElementById('add-to-cart').addEventListener('click', function() {
                 addToCart(product);
             });
@@ -131,13 +131,10 @@ if (empty($product_id)) {
         }
 
         function addToCart(product) {
-            // 这里添加添加到购物车的逻辑
             alert('Added to cart: ' + product.product_name);
-            // 可以调用PHP API来保存到数据库
         }
 
         function buyNow(product) {
-            // 直接购买逻辑
             window.location.href = `check_out.php?product_id=${productId}&quantity=1`;
         }
     </script>

@@ -5,18 +5,18 @@ $(document).ready(function() {
         const username = $('#username').val().trim();
         const password = $('#password').val().trim();
         
-        // 简单验证
+        //  validation
         if (!username || !password) {
             $('#loginMessage').text('Please enter username and password').css('color', 'red');
             return;
         }
         
-        // 显示加载状态
+        //  show loading state
         const submitBtn = $(this).find('button[type="submit"]');
         const originalText = submitBtn.text();
         submitBtn.text('Logging in...').prop('disabled', true);
         
-        // 调用PHP API
+        //  call login API
         $.ajax({
             url: 'api/login.php',
             method: 'POST',
@@ -27,10 +27,10 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    // 登录成功，跳转到首页
+                    //  redirect to homepage
                     window.location.href = 'index.php';
                 } else {
-                    // 显示错误
+                    // show error message
                     $('#loginMessage').text(response.message || 'Login failed').css('color', 'red');
                     submitBtn.text(originalText).prop('disabled', false);
                 }
