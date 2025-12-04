@@ -1,97 +1,140 @@
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyAHW8gPuNSVstSV0ytE8oB5-_3PJKvxgMA",
-    authDomain: "muzica-93e9c.firebaseapp.com",
-    projectId: "muzica-93e9c",
-    storageBucket: "muzica-93e9c.appspot.com",
-    messagingSenderId: "559137569600",
-    appId: "1:559137569600:web:081ec42350a9f8099658a5",
-    measurementId: "G-G5MCSMD8H0",
-    databaseURL: "https://muzica-93e9c-default-rtdb.firebaseio.com/"
-};
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-
-
-const username = getCookieValue('username')
-console.log(username);
-const getorder = ref(db, '/personal_data/' + username + '/order')
-onValue(getorder, (snapshot) => {
-    const data = snapshot.val();  
-    if (data) {
-        console.log( data);
-        displayOrderStatus(data);
-    } else {
-        console.log("No data in cart for this user.");  
-    }  
-}, (error) => {  
-    console.error("Error fetching cart data:", error);  
-});  
-
-function getCookieValue(name) {  
-    const value = `; ${document.cookie}`;  
-    const parts = value.split(`; ${name}=`);  
-    if (parts.length === 2) return parts.pop().split(';').shift();  
-    return null; // Returns null if the cookie isn't found  
-}
-
-function displayOrderStatus(orderimage) {
-    const productContainer = document.getElementById("product-list");
-    productContainer.innerHTML = ''; 
-    for (const imageKey in orderimage) {
-        const image = orderimage[imageKey];
-        const productDiv = `
-            <div>
-                <img src="${image.image_source}" alt="${image.productName}">
-                <p id="product_name">${image.productName}</p>
+$(document).ready(function() {
+    // 1. 加载订单数据
+    loadOrders();
+    
+    // 2. 加载订单函数
+    function loadOrders() {
+        $.ajax({
+            url: 'api/get_orders.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.data && response.data.length > 0) {
+                    // 显示最新订单
+                    const latestOrder = response.data[0]; // 假设显示最新的
+                    displayOrder(latestOrder);
+                } else {
+                    // 没有订单
+                    showNoOrders();
+                }
+            },
+            error: function() {
+                $('#product-list').html('<p>Error loading orders</p>');
+            }
+        });
+    }
+    
+    // 3. 显示订单
+    function displayOrder(order) {
+        // 3.1 显示订单基本信息
+        const orderInfo = `
+            <div class="order-info">
+                <p><strong>Order #:</strong> ${order.order_number}</p>
+                <p><strong>Date:</strong> ${formatDate(order.created_at)}</p>
+                <p><strong>Total:</strong> RM ${order.total_amount}</p>
+                <p><strong>Status:</strong> <span class="status-${order.status}">${order.status.toUpperCase()}</span></p>
             </div>
         `;
-        productContainer.innerHTML += productDiv;
-        tracking(image.status);
-        console.log(image.status)
+        
+        // 3.2 获取订单商品（需要新API或修改现有API）
+        // 暂时显示通用信息
+        const productInfo = `
+            <div class="product-info">
+                <img src="images/guitar.jpg" alt="Product Image">
+                <p id="product_name">Order #${order.order_number}</p>
+            </div>
+        `;
+        
+        $('#product-list').html(productInfo);
+        $('.order-tracking').prepend(orderInfo);
+        
+        // 3.3 更新跟踪状态
+        updateTrackingStatus(order.status);
     }
-}
-
-function tracking (order_status) {
-    if (order_status=="arrived"){
-        payment.style="border: 2px solid #130505;" //solid line
-        packing.style="border: 2px solid #130505;" //solid line
-        delivery.style="border: 2px solid #130505;" //solid line
-        arrived.style="border: 2px solid #130505;" //solid line
-        document.getElementById("loader1").classList.add("stop-animation");
-        document.getElementById("loader2").classList.add("stop-animation");
-        document.getElementById("loader3").classList.add("stop-animation");
+    
+    // 4. 显示无订单
+    function showNoOrders() {
+        const noOrdersHtml = `
+            <div class="no-orders">
+                <h3>No Orders Found</h3>
+                <p>You haven't placed any orders yet.</p>
+                <a href="index.php" class="btn">Start Shopping</a>
+            </div>
+        `;
+        $('#product-list').html(noOrdersHtml);
     }
-    else if (order_status=="delivery"){
-        payment.style="border: 2px solid #130505;" //solid line
-        packing.style="border: 2px solid #130505;" //solid line
-        delivery.style="border: 2px solid #130505;" //solid line
-        arrived.style="border: 2px dashed #130505;" //dashed line
-        document.getElementById("loader1").classList.add("stop-animation");
-        document.getElementById("loader2").classList.add("stop-animation");
-        document.getElementById("loader3").classList.remove("stop-animation");
+    
+    // 5. 更新跟踪状态（根据你原来的tracking函数）
+    function updateTrackingStatus(status) {
+        const payment = $('#payment');
+        const packing = $('#packing');
+        const delivery = $('#delivery');
+        const arrived = $('#arrived');
+        
+        const loader1 = $('#loader1');
+        const loader2 = $('#loader2');
+        const loader3 = $('#loader3');
+        
+        // 重置所有
+        payment.css('border', '2px dashed #130505');
+        packing.css('border', '2px dashed #130505');
+        delivery.css('border', '2px dashed #130505');
+        arrived.css('border', '2px dashed #130505');
+        
+        loader1.removeClass('stop-animation');
+        loader2.removeClass('stop-animation');
+        loader3.removeClass('stop-animation');
+        
+        // 根据状态更新
+        switch(status) {
+            case 'arrived':
+                payment.css('border', '2px solid #130505');
+                packing.css('border', '2px solid #130505');
+                delivery.css('border', '2px solid #130505');
+                arrived.css('border', '2px solid #130505');
+                loader1.addClass('stop-animation');
+                loader2.addClass('stop-animation');
+                loader3.addClass('stop-animation');
+                break;
+                
+            case 'delivery':
+                payment.css('border', '2px solid #130505');
+                packing.css('border', '2px solid #130505');
+                delivery.css('border', '2px solid #130505');
+                loader1.addClass('stop-animation');
+                loader2.addClass('stop-animation');
+                break;
+                
+            case 'packing':
+                payment.css('border', '2px solid #130505');
+                packing.css('border', '2px solid #130505');
+                loader1.addClass('stop-animation');
+                break;
+                
+            case 'payment':
+                payment.css('border', '2px solid #130505');
+                break;
+                
+            default:
+                // 保持虚线
+                break;
+        }
     }
-    else if (order_status=="packing"){
-        payment.style="border: 2px solid #130505;" //solid line
-        packing.style="border: 2px solid #130505;" //solid line
-        delivery.style="border: 2px dashed #130505;" //dashed line
-        arrived.style="border: 2px dashed #130505;" //dashed line
-        document.getElementById("loader1").classList.add("stop-animation");
-        document.getElementById("loader2").classList.remove("stop-animation");
-        document.getElementById("loader3").classList.remove("stop-animation");
+    
+    // 6. 格式化日期
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     }
-    else if (order_status=="payment"){
-        payment.style="border: 2px solid #130505;" //solid line
-        packing.style="border: 2px dashed #130505;" //dashed line
-        delivery.style="border: 2px dashed #130505;" //dashed line
-        arrived.style="border: 2px dashed #130505;" //dashed line
-        document.getElementById("loader1").classList.remove("stop-animation");
-        document.getElementById("loader2").classList.remove("stop-animation");
-        document.getElementById("loader3").classList.remove("stop-animation");
+    
+    // 7. 可选：自动刷新订单状态
+    // 如果订单还在处理中，可以定时刷新
+    if (window.location.search.includes('order_id')) {
+        // 如果有特定的订单ID，可以更频繁地检查
+        setInterval(loadOrders, 30000); // 每30秒刷新
     }
-}
+});
