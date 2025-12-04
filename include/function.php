@@ -21,6 +21,14 @@ function createUser($userData) {
     ]);
 }
 
+// 获取用户信息函数
+function getUserById($userId) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    return $stmt->fetch();
+}
+
 // 购物车相关函数
 function addToCart($userId, $productId, $quantity = 1) {
     global $pdo;

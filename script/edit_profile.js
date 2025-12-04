@@ -1,83 +1,78 @@
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyAHW8gPuNSVstSV0ytE8oB5-_3PJKvxgMA",
-    authDomain: "muzica-93e9c.firebaseapp.com",
-    projectId: "muzica-93e9c",
-    storageBucket: "muzica-93e9c.appspot.com",
-    messagingSenderId: "559137569600",
-    appId: "1:559137569600:web:081ec42350a9f8099658a5",
-    measurementId: "G-G5MCSMD8H0",
-    databaseURL: "https://muzica-93e9c-default-rtdb.firebaseio.com/"
-};
-
-// Import Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app)
-
-function getCookieValue(name) {  
-    const value = `; ${document.cookie}`;  
-    const parts = value.split(`; ${name}=`);  
-    if (parts.length === 2) return parts.pop().split(';').shift();  
-    return null; // Returns null if the cookie isn't found  
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    // const username = decodeURIComponent(document.cookie.replace(/(?:(?:^|.*;\s*)username\s*\=\s*([^;]*).*$)|^.*$/, "$1")); // 获取用户名
-    const username = getCookieValue('username');
-    //if (username) {y
-        ///console.log('Username from cookie:', username); // 检查 username 值
-        const dbRef = ref(db);
+$(document).ready(function() {
+    // 显示消息函数
+    function showMessage(message, type = 'success') {
+        const messageContainer = $('#message-container');
+        messageContainer.html(`
+            <div class="${type === 'success' ? 'success-message' : 'error-message'}">
+                ${message}
+            </div>
+        `);
         
-
-        // 读取用户数据并填充到表单中
-        get(child(dbRef, `userdata/${username}`)).then((snapshot) => {
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                console.log('User data:', userData); // 检查获取到的用户数据
-
-                // 填充表单数据
-                document.getElementById('username').textContent = username;
-                document.getElementById('email').value = userData.email || '';
-                document.getElementById('fullName').value =username || '';
-                document.getElementById('birthday').value = userData.birthday || '';
-                document.getElementById('address').value = userData.address || '';
-            } else {
-                console.log("No data available");
-            }
-        }).catch((error) => {
-            console.error("Error fetching data:", error);
-        });
-    //}
-
-    
-
-// 保存更新后的信息
-const profileForm = document.querySelector('.profile-form');
-
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const updatedData = {
-                email: document.getElementById('email').value,
-                fullName: username,
-                birthday: document.getElementById('birthday').value,
-                address: document.getElementById('address').value,
-            };
-
-            // 更新用户信息到 Firebase 数据库
-            set(ref(db, `personal_data/${username}/personal_information`), updatedData)
-                .then(() => {
-                    alert('Profile updated successfully!');
-                })
-                .catch((error) => {
-                    console.error("Error updating data:", error);
-                    alert('Failed to update profile.');
-                });
-        });
+        // 5秒后自动隐藏
+        setTimeout(() => {
+            messageContainer.empty();
+        }, 5000);
     }
+    
+    // 表单提交处理
+    $('#profileForm').on('submit', function(event) {
+        event.preventDefault();
+        
+        // 收集表单数据
+        const formData = {
+            email: $('#email').val().trim(),
+            fullName: $('#fullName').val().trim(),
+            birthday: $('#birthday').val(),
+            address: $('#address').val().trim()
+        };
+        
+        // 验证
+        if (!formData.email || !formData.address) {
+            showMessage('Email and address are required!', 'error');
+            return;
+        }
+        
+        // 显示加载状态
+        const saveBtn = $('.save-btn');
+        const originalText = saveBtn.text();
+        saveBtn.text('Saving...').prop('disabled', true);
+        
+        // 发送更新请求到API
+        $.ajax({
+            url: 'api/update_profile.php',
+            method: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    showMessage('Profile updated successfully!', 'success');
+                    
+                    // 可选：更新页面上的用户名显示
+                    if (response.data && response.data.email) {
+                        $('#userName').text(response.data.username || $('#username').text());
+                    }
+                    
+                    // 3秒后重定向到个人资料页
+                    setTimeout(() => {
+                        window.location.href = 'profile.php';
+                    }, 3000);
+                } else {
+                    showMessage('Error: ' + response.message, 'error');
+                    saveBtn.text(originalText).prop('disabled', false);
+                }
+            },
+            error: function(xhr, status, error) {
+                showMessage('Failed to update profile. Please try again.', 'error');
+                console.error('AJAX Error:', error);
+                saveBtn.text(originalText).prop('disabled', false);
+            }
+        });
+    });
+    
+    // 取消按钮处理
+    $('#cancelBtn').on('click', function() {
+        if (confirm('Are you sure? Unsaved changes will be lost.')) {
+            window.location.href = 'profile.php';
+        }
+    });
 });

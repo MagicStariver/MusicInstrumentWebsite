@@ -1,16 +1,14 @@
 <?php
-require_once 'session.php';
-require_once 'db.php';
+require_once 'includes/session.php';
+require_once 'includes/db.php';
 
 if (!isLoggedIn()) {
     redirectToLogin();
 }
 
 $user_id = $_SESSION['user_id'];
-$message = '';
-$message_type = '';
 
-// 获取当前用户信息
+// 获取当前用户信息（只用于页面显示）
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
@@ -18,33 +16,6 @@ $user = $stmt->fetch();
 if (!$user) {
     session_destroy();
     redirectToLogin();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $fullName = trim($_POST['fullName']);
-    $birthday = $_POST['birthday'];
-    $address = trim($_POST['address']);
-    
-    try {
-        $stmt = $pdo->prepare("UPDATE users SET email = ?, full_name = ?, birthday = ?, address = ? WHERE id = ?");
-        $stmt->execute([$email, $fullName, $birthday, $address, $user_id]);
-        
-        // 更新会话中的信息
-        $_SESSION['email'] = $email;
-        
-        $message = "Profile updated successfully!";
-        $message_type = 'success';
-        
-        // 重新获取用户信息
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $user = $stmt->fetch();
-        
-    } catch (PDOException $e) {
-        $message = "Update failed: " . $e->getMessage();
-        $message_type = 'error';
-    }
 }
 ?>
 
@@ -56,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Edit Profile - Música</title>
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" href="styles/EditProfile.css">
+    <!-- 添加jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -83,17 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main>
         <section class="user-profile">
-            <?php if ($message): ?>
-                <div class="<?php echo $message_type === 'success' ? 'success-message' : 'error-message'; ?>">
-                    <?php echo $message; ?>
-                </div>
-            <?php endif; ?>
+            <!-- 消息容器（由JS动态填充） -->
+            <div id="message-container"></div>
             
             <div class="avatar-container">
                 <img src="images/profile.png" alt="User Avatar" class="user-avatar">
             </div>
             <h3 id="username"><?php echo htmlspecialchars($user['username']); ?></h3>
-            <form method="POST" class="profile-form">
+            
+            <!-- 改为普通表单，无action，由JS处理 -->
+            <form id="profileForm" class="profile-form">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 
@@ -108,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-actions">
                     <button type="submit" class="save-btn">Save</button>
-                    <button type="button" class="cancel-btn" onclick="window.location.href='profile.php';">Cancel</button>
+                    <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
                 </div>
             </form>
         </section>
@@ -117,5 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <footer>
         <p>&copy; <?php echo date('Y'); ?> Música. All rights reserved.</p>
     </footer>
+    
+    <!-- 引入修改后的JS文件 -->
+    <script src="scripts/edit_profile.js"></script>
 </body>
 </html>
