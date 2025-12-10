@@ -1,5 +1,5 @@
 <?php
-require_once 'session.php';
+require_once 'include/session.php';
 
 $product_id = $_GET['id'] ?? '';
 

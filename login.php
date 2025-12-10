@@ -1,6 +1,6 @@
 <?php
-require_once 'db.php';
-require_once 'session.php';
+require_once 'include/db.php';
+require_once 'include/session.php';
 
 // if already logged in, redirect to homepage
 if (isLoggedIn()) {
