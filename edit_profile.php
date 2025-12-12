@@ -1,6 +1,6 @@
 <?php
-require_once 'includes/session.php';
-require_once 'includes/db.php';
+require_once 'include/session.php';
+require_once 'include/db.php';
 
 if (!isLoggedIn()) {
     redirectToLogin();
@@ -65,13 +65,13 @@ if (!$user) {
             <form id="profileForm" class="profile-form">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                
+                <br>
                 <label for="fullName">Full Name:</label>
                 <input type="text" id="fullName" name="fullName" value="<?php echo htmlspecialchars($user['full_name'] ?? ''); ?>">
-
+                <br>
                 <label for="birthday">Birthday:</label>
                 <input type="date" id="birthday" name="birthday" value="<?php echo htmlspecialchars($user['birthday'] ?? '1989-01-01'); ?>">
-
+                <br>
                 <label for="address">Address:</label>
                 <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($user['address']); ?>" required>
 
