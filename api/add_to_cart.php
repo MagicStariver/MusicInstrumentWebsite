@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../include/session.php';
+require_once __DIR__ . '/../include/functions.php';
 
 if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'Not logged in']);

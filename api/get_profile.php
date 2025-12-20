@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/session.php';
-require_once '../includes/functions.php';
+require_once '../include/session.php';
+require_once '../include/functions.php';
 
 if (!isLoggedIn()) {
     echo json_encode([

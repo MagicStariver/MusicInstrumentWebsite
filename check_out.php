@@ -1,6 +1,6 @@
 <?php
-require_once 'includes/session.php';
-require_once 'includes/db.php';
+require_once 'include/session.php';
+require_once 'include/db.php';
 
 if (!isLoggedIn()) {
     redirectToLogin();
